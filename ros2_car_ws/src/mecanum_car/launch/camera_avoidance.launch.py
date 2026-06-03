@@ -1,0 +1,71 @@
+"""
+启动文件：摄像头辅助红外避障
+用法: ros2 launch mecanum_car camera_avoidance.launch.py
+"""
+
+from launch import LaunchDescription
+from launch_ros.actions import Node
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration
+
+
+def generate_launch_description():
+    return LaunchDescription([
+        DeclareLaunchArgument('forward_speed', default_value='0.25'),
+        DeclareLaunchArgument('strafe_speed', default_value='0.3'),
+        DeclareLaunchArgument('backup_speed', default_value='0.2'),
+        DeclareLaunchArgument('backup_duration', default_value='0.3'),
+        DeclareLaunchArgument('avoid_duration', default_value='0.6'),
+        DeclareLaunchArgument('decision_threshold', default_value='0.01'),
+        DeclareLaunchArgument('default_direction', default_value='right'),
+        # 双舵机参数
+        DeclareLaunchArgument('servo_pan_channel', default_value='10'),
+        DeclareLaunchArgument('servo_tilt_channel', default_value='9'),
+        DeclareLaunchArgument('servo_pan_center', default_value='380'),
+        DeclareLaunchArgument('servo_pan_left', default_value='280'),
+        DeclareLaunchArgument('servo_pan_right', default_value='480'),
+        DeclareLaunchArgument('servo_tilt_center', default_value='130'),
+
+        Node(
+            package='mecanum_car',
+            executable='ir_sensor',
+            name='ir_sensor',
+            output='screen',
+        ),
+        Node(
+            package='mecanum_car',
+            executable='car_controller',
+            name='car_controller',
+            output='screen',
+            parameters=[{
+                'pca9685_address': 0x40,
+                'max_linear_speed': 1.0,
+                'max_angular_speed': 2.0,
+                'wheel_base_x': 0.15,
+                'wheel_base_y': 0.12,
+                'timeout': 1.0,
+            }],
+        ),
+        Node(
+            package='mecanum_car',
+            executable='camera_avoidance',
+            name='camera_avoidance',
+            output='screen',
+            parameters=[{
+                'forward_speed': LaunchConfiguration('forward_speed'),
+                'strafe_speed': LaunchConfiguration('strafe_speed'),
+                'backup_speed': LaunchConfiguration('backup_speed'),
+                'backup_duration': LaunchConfiguration('backup_duration'),
+                'avoid_duration': LaunchConfiguration('avoid_duration'),
+                'decision_threshold': LaunchConfiguration('decision_threshold'),
+                'default_direction': LaunchConfiguration('default_direction'),
+                # 双舵机
+                'servo_pan_channel': LaunchConfiguration('servo_pan_channel'),
+                'servo_tilt_channel': LaunchConfiguration('servo_tilt_channel'),
+                'servo_pan_center': LaunchConfiguration('servo_pan_center'),
+                'servo_pan_left': LaunchConfiguration('servo_pan_left'),
+                'servo_pan_right': LaunchConfiguration('servo_pan_right'),
+                'servo_tilt_center': LaunchConfiguration('servo_tilt_center'),
+            }],
+        ),
+    ])
