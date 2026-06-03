@@ -29,6 +29,7 @@ setup(
             'ir_sensor = mecanum_car.ir_sensor:main',
             'mecanum_keyboard = mecanum_car.mecanum_keyboard:main',
             'camera_avoidance = mecanum_car.camera_avoidance:main',
+            'camera_node = mecanum_car.camera_node:main',
         ],
     },
 )
